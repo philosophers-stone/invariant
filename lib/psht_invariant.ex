@@ -1,2 +1,0 @@
-defmodule PhStInvariant do
-end

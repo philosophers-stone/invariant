@@ -27,6 +27,6 @@ defmodule PhStInvariant.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    []
+    [ {:phst_phenetic, git: "https://github.com/philosophers-stone/phenetic.git" }]
   end
 end
