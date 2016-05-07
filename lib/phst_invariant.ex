@@ -36,11 +36,26 @@ defmodule PhStInvariant do
 
     success_funct = PhStPhenetic.congruent(result)
 
-    test_func = fn ->
+    generate_input = fn ->
       Enum.map(args, fn arg -> PhStMutate.mutate(arg) end)
     end
 
-    Stream.repeatedly(test_func)
+    Stream.repeatedly(generate_input)
+    |> Enum.take(test_count)
+    |> Stream.map(fn input -> Kernel.apply(module, function, input) end )
+    |> Enum.partition(fn output -> success_funct.(output) == false end )
+
+  end
+
+  def similar(module, function, args, result, test_count \\ 1000 ) do
+
+    success_funct = PhStPhenetic.similar(result)
+
+    generate_input = fn ->
+      Enum.map(args, fn arg -> PhStMutate.mutate(arg) end)
+    end
+
+    Stream.repeatedly(generate_input)
     |> Enum.take(test_count)
     |> Stream.map(fn input -> Kernel.apply(module, function, input) end )
     |> Enum.partition(fn output -> success_funct.(output) == false end )
