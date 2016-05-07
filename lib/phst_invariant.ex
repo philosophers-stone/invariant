@@ -1,5 +1,4 @@
 defmodule PhStInvariant do
-  import PhStPhenetic
 
   @moduledoc """
   The long term goal of this library is allow developers to create property style
@@ -38,13 +37,13 @@ defmodule PhStInvariant do
     success_funct = PhStPhenetic.congruent(result)
 
     test_func = fn ->
-      Enum.map(args, fn arg -> PhStPhenetic.mutate(arg) end)
+      Enum.map(args, fn arg -> PhStMutate.mutate(arg) end)
     end
 
     Stream.repeatedly(test_func)
     |> Enum.take(test_count)
     |> Stream.map(fn input -> Kernel.apply(module, function, input) end )
-    |> Enum.filter(fn output -> success_funct.(output) == false end )
+    |> Enum.partition(fn output -> success_funct.(output) == false end )
 
   end
 end
