@@ -10,18 +10,20 @@ defmodule PhStInvariant do
 
       success_funct = PhStPhenetic.congruent("foo+z=bar")
 
-      test_func = fn ->
+      generate_input = fn ->
         PhStPhenetic.mutate([{"foo z", :bar}])
       end
 
-      Stream.repeatedly(test_func)
+      Stream.repeatedly(generate_input)
       |> Enum.take(@test_number)
-      |> Stream.map(fn x -> URI.encode_query(x) end )
-      |> Enum.filter(fn x -> success_funct.(x) == false end)
+      |> Enum.partition( fn input -> success_funct.(URI.encode_query(input)) end )
 
   That should produce an List of inputs for which the output is not congruent
-  to test data. This example is only works for a function with a single argument.
+  to test data in the false partition. This example is only works for a function with a single argument.
   It needs to be extended to use Kernel.apply for functions that take many arguments.
+
+  An alternative approach would be to put a timer around it and run as many as possible
+  in a given interval.
   """
 
   @doc """
@@ -41,9 +43,8 @@ defmodule PhStInvariant do
     end
 
     Stream.repeatedly(generate_input)
-    |> Enum.take(test_count)
-    |> Stream.map(fn input -> Kernel.apply(module, function, input) end )
-    |> Enum.partition(fn output -> success_funct.(output) == false end )
+    |> Stream.take(test_count)
+    |> Enum.partition(fn input -> success_funct.(Kernel.apply(module, function, input)) end )
 
   end
 
@@ -51,14 +52,15 @@ defmodule PhStInvariant do
 
     success_funct = PhStPhenetic.similar(result)
 
+    #umm love me some copypasta... refactor this into it's own function.
     generate_input = fn ->
       Enum.map(args, fn arg -> PhStMutate.mutate(arg) end)
     end
 
     Stream.repeatedly(generate_input)
-    |> Enum.take(test_count)
-    |> Stream.map(fn input -> Kernel.apply(module, function, input) end )
-    |> Enum.partition(fn output -> success_funct.(output) == false end )
+    |> Stream.take(test_count)
+    |> Enum.partition(fn input -> success_funct.(Kernel.apply(module, function, input)) end )
 
   end
+
 end
