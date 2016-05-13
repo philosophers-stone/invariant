@@ -47,6 +47,19 @@ defmodule PhStInvariant do
 
   end
 
+  def exact(module, function, args, result, test_count \\ 1000 ) do
+
+    success_funct = PhStPhenetic.exact(result)
+
+    # This should really be an input.
+    generate_input = fn ->
+      Enum.map(args, fn arg -> PhStMutate.mutate(arg) end)
+    end
+
+    property(module, function, generate_input , success_funct, test_count)
+
+  end
+
   def similar(module, function, args, result, test_count \\ 1000 ) do
 
     success_funct = PhStPhenetic.similar(result)
